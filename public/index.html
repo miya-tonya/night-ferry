@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh" data-font="wenkai" style="background:#091530">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0a1226" />
+  <title>夜航船 · Night Ferry</title>
+  <!-- The cover: Aivazovsky's moonlit sea, alive (nf-live.js), with tonight's title under it.
+       Tap to board — the reader opens with the boat crossing the same painting. -->
+  <link rel="stylesheet" href="nf-fonts.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #091530; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+    .cover { position: fixed; inset: 0; display: block; color: #f1e8d4; text-decoration: none; }
+    .cover canvas, .cover .still { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .cover .still { background: #091530 url(assets/moonsea.jpg) center / cover no-repeat; }
+    .cover canvas { opacity: 0; transition: opacity 1.2s ease; }
+    .cover canvas.on { opacity: 1; }
+    .plate { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 28px calc(env(safe-area-inset-bottom) + 44px);
+      background: linear-gradient(transparent, rgba(6, 12, 28, 0.72) 46%); text-align: center; pointer-events: none; }
+    .plate .name { font-family: "Cormorant Garamond", Georgia, serif; font-size: 34px; font-weight: 500; letter-spacing: 2px; padding-top: 120px; }
+    .plate .zh { margin-top: 2px; font-size: 14px; letter-spacing: 8px; text-indent: 8px; opacity: 0.82; }
+    .plate .tonight { margin: 22px auto 0; max-width: 22em; font-size: 16px; line-height: 1.7; min-height: 1.7em; opacity: 0.94; }
+    .plate .board { display: inline-block; margin-top: 26px; padding: 9px 26px; border: 1px solid rgba(241, 232, 212, 0.55); border-radius: 999px;
+      font-size: 14px; letter-spacing: 6px; text-indent: 6px; }
+    .demo-tag { position: absolute; top: calc(env(safe-area-inset-top) + 14px); right: 16px; padding: 3px 10px; border-radius: 999px;
+      background: rgba(6, 12, 28, 0.5); font-family: "Cormorant Garamond", Georgia, serif; font-size: 13px; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+  <a class="cover" href="night-ferry.html?enter=1" aria-label="上船，读今晚的夜航船">
+    <div class="still"></div>
+    <div class="plate">
+      <div class="name">Night Ferry</div>
+      <div class="zh">夜航船</div>
+      <div class="tonight" id="tonight"></div>
+      <div class="board">上船</div>
+    </div>
+    <div class="demo-tag" id="demoTag" hidden>demo</div>
+  </a>
+  <script src="demo/demo-data.js"></script>
+  <script src="nf-demo.js"></script>
+  <script src="nf-live.js"></script>
+  <script>
+    (function () {
+      var cover = document.querySelector(".cover");
+      if (window.NF_DEMO_ACTIVE) document.getElementById("demoTag").hidden = false;
+      // tonight's (or the latest) title
+      fetch("api/night-ferry?limit=1").then(function (r) { return r.json(); }).then(function (j) {
+        var e = j && j.entries && j.entries[0];
+        document.getElementById("tonight").textContent = e ? "《" + e.title + "》" : "船还没开过";
+      }).catch(function () {});
+      // the living painting, cropped to cover the screen; the still image stays underneath if WebGL is unavailable
+      if (!window.nfLive || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var live = window.nfLive.create({});
+      if (!live.ok) return;
+      cover.insertBefore(live.canvas, cover.querySelector(".plate"));
+      function fit() {
+        var w = innerWidth, h = innerHeight, a = w / h, p = window.nfLive.PW / window.nfLive.PH;
+        live.setSize(w, h, Math.min(2, window.devicePixelRatio || 1));
+        if (a < p) { var vw = a / p; live.setView({ x: (1 - vw) / 2, y: 0, w: vw, h: 1 }); }
+        else { var vh = p / a; live.setView({ x: 0, y: (1 - vh) / 2, w: 1, h: vh }); }
+      }
+      fit();
+      addEventListener("resize", fit);
+      live.ready.then(function () { live.start(); live.canvas.classList.add("on"); }).catch(function () {});
+      document.addEventListener("visibilitychange", function () { if (document.hidden) live.stop(); else live.start(); });
+    })();
+  </script>
+</body>
+</html>

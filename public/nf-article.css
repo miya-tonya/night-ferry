@@ -1,0 +1,209 @@
+/* Night Ferry: article styles. A dark sea with a sheet of cream paper in the middle: ship's-log header, serif body with a drop cap,
+   old-photo figures with a thought-cloud note, an anchor that drops at the end, and the ship's log (comments) section.
+   Shared by the standalone page and by any page that opens the reader in place; every class is prefixed nf-.
+   .nf-deck is fully opaque on purpose: the entrance animation uses it as the masked layer, so do not make it transparent.
+   Needs: assets/paper-grain.png, assets/cloud.webp, assets/cloud-dot-m.webp, assets/cloud-dot-s.webp; markup comes from nf-article.js / nf-reader.js. */
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5.3.1/index.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5.3.1/700.css");
+
+@property --sea-0 { syntax: "<color>"; inherits: true; initial-value: #0d1d3c; }
+@property --sea-1 { syntax: "<color>"; inherits: true; initial-value: #091530; }
+@property --sea-2 { syntax: "<color>"; inherits: true; initial-value: #060d1e; }
+@property --sea-glow { syntax: "<color>"; inherits: true; initial-value: #4268a8; }
+.nf-deck {
+  --sea-0: #0d1d3c; --sea-1: #091530; --sea-2: #060d1e; --sea-glow: #4268a8;
+  transition: --sea-0 0.7s ease, --sea-1 0.7s ease, --sea-2 0.7s ease, --sea-glow 0.7s ease;
+  --paper: #efe4cf; --paper-2: #e6d9c0; --paper-edge: #cdbb98;
+  --ink: #5a4d3c; --ink-2: #7a6b54; --ink-3: #9e8f76; --lamp: #c99a4a;
+  --nf-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "Hiragino Mincho ProN", "Noto Serif CJK SC", serif;
+  --nf-latin: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  position: fixed; inset: 0; z-index: 2;
+  height: var(--screen-h, 100lvh);
+  background:
+    radial-gradient(120% 60% at 50% -12%, color-mix(in srgb, var(--sea-glow) 38%, transparent) 0, transparent 60%),
+    radial-gradient(70% 40% at 82% 18%, rgba(190, 170, 120, 0.12) 0, rgba(190, 170, 120, 0) 70%),
+    linear-gradient(180deg, var(--sea-0) 0, var(--sea-1) 42%, var(--sea-2) 100%);
+  color: var(--ink); font-family: var(--nf-serif);
+  -webkit-font-smoothing: antialiased; text-align: left; letter-spacing: 0; line-height: normal; font-size: 16px; font-weight: 400;
+  -webkit-tap-highlight-color: transparent;
+}
+.nf-deck * { box-sizing: border-box; margin: 0; padding: 0; }
+.nf-deck-scroll {
+  position: relative; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  padding: 0; scrollbar-width: none; touch-action: pan-y; /* bottom padding lives in .nf-inner so the wallpaper can run to the very bottom; pan-y: horizontal gestures are kept for page turning instead of being taken by the system scroller */
+}
+.nf-deck-scroll::-webkit-scrollbar { display: none; }
+
+/* Entry background. No position arithmetic at all: calc()-based background-position offsets did not land where computed on iOS Safari.
+   The image file is an [upright][flipped] block.
+   .nf-hero = the mirrored strip only: top -ext, height ext (above the scroll content, revealed by rubber-banding), background center bottom no-repeat,
+     so the block's bottom = bottom of the flipped half = mirror of the upright image's top, meeting content y=0 exactly;
+   .nf-hero-b = from content 0 to the bottom (top 0, bottom 0), background center top repeat-y, so the upright image's top sits at content 0
+     (= top edge of the screen), followed by the flipped half, then the upright one again: a seamless loop. The two blocks do not overlap. */
+.nf-inner { position: relative; display: flow-root; min-height: 100%; padding: 0 0 calc(34px + env(safe-area-inset-bottom)); } /* flow-root: keeps the paper's margin-top from collapsing through this container; otherwise the whole container, wallpaper included, is pushed down by that margin and the upright image starts at the top of the paper instead of the top of the screen */
+.nf-hero, .nf-hero-b { --nf-hero-ext: calc(100vw * 0.8333); position: absolute; left: 0; right: 0; pointer-events: none; background-image: var(--nf-hero-img, none); background-size: 100% auto; opacity: 0; will-change: opacity; }
+.nf-hero { top: calc(-1 * var(--nf-hero-ext)); height: var(--nf-hero-ext); background-repeat: no-repeat; background-position: center bottom; }
+.nf-hero-b { top: 0; bottom: 0; background-repeat: repeat-y; background-position: center top; }
+.nf-hero-b.none { display: none; }
+/* The scroll container carries the same wallpaper, so whatever rubber-banding reveals (top or bottom) is a continuation of it.
+   Where it overlaps .nf-hero / .nf-hero-b it is the same image at the same phase, so no seam shows. */
+.nf-deck-scroll.nf-wall { background: var(--nf-hero-img, none) center var(--nf-wall-y, 0px) / 100% auto repeat-y; } /* background-attachment: local is not painted in the iOS rubber-band area, so this is a plain background whose phase = minus the max scroll offset (set by js per content height, not per scroll event): scrolled to the bottom it lines up with the wallpaper in the content, and the overscroll area shows wallpaper (the bottom strip repeats, since that area does not track the finger) */
+/* Drag to turn pages: the neighbouring entry is rendered temporarily as .nf-peer over the visible window of the scroller and moves horizontally together with the current .nf-inner under the finger */
+.nf-inner { will-change: transform; }
+.nf-peer { position: absolute; left: 0; right: 0; overflow: hidden; background: var(--nf-hero-img, none) center top / 100% auto repeat-y; background-color: var(--sea-1); }
+.nf-peer .nf-hero, .nf-peer .nf-hero-b { display: none; }
+.nf-hero.none { display: none; }
+
+/* paper */
+.nf-page {
+  position: relative; z-index: 1;
+  width: calc(100% - 28px); max-width: 640px;
+  margin: calc(env(safe-area-inset-top) + 17vh) auto 0; margin-top: calc(env(safe-area-inset-top) + var(--screen-h, 100lvh) * 0.17);
+  padding: 30px 24px 34px;
+  background: url("assets/paper-grain.png") repeat, linear-gradient(180deg, var(--paper) 0, var(--paper-2) 100%);
+  border-radius: 3px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(255, 252, 240, 0.35);
+  color: var(--ink);
+}
+.nf-page::before { /* faint aged edge around the paper */
+  content: ""; position: absolute; inset: 0; border-radius: 3px; pointer-events: none;
+  box-shadow: inset 0 0 38px rgba(120, 90, 40, 0.14);
+}
+.nf-page.in-left { animation: nfPageIn 0.3s ease-out; --from: 28px; }
+.nf-page.in-right { animation: nfPageIn 0.3s ease-out; --from: -28px; }
+@keyframes nfPageIn { from { opacity: 0; transform: translateX(var(--from)); } to { opacity: 1; transform: none; } }
+.nf-page.empty { text-align: center; padding: 60px 24px; }
+
+/* ship's-log header */
+.nf-log { padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px solid rgba(90, 70, 40, 0.28); color: var(--ink-2); }
+.nf-log-l1 { font-family: var(--nf-latin); font-size: 19px; letter-spacing: 1.5px; color: var(--ink-2); font-weight: 500; }
+.nf-log-l1 .nf-logno { font-variant-numeric: tabular-nums; }
+.nf-log-l1 .nf-logno:empty::before { content: "—"; }
+.nf-log-l2, .nf-log-l3 { margin-top: 6px; font-size: 12.5px; letter-spacing: 0.6px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.nf-log-l2 .nf-date { color: var(--ink-2); }
+.nf-log-l3 { font-family: var(--nf-latin); font-size: 13px; letter-spacing: 1px; }
+.nf-log-l3 .nf-place { font-family: var(--nf-serif); font-size: 12.5px; }
+.nf-log .nf-tonight { color: var(--lamp); }
+.nf-notice { margin-top: 8px; font-size: 12.5px; color: var(--ink-3); letter-spacing: 0.6px; }
+
+.nf-page h1 { margin: 0 0 40px; font-size: 27px; font-weight: 700; line-height: 1.45; color: #4a3e2f; letter-spacing: 0.5px; font-family: var(--nf-serif); }
+
+/* body: serif, line-height 1.9, measure follows the paper (about 20 CJK characters per line on a phone, about 34 on the 640px paper) */
+.nf-body { font-size: 17px; line-height: 1.9; color: var(--ink); text-align: justify; }
+.nf-body p { margin: 0 0 15px; }
+.nf-body p:last-child { margin-bottom: 0; }
+.nf-body > p:first-of-type::first-letter {
+  float: left; font-size: 2.55em; line-height: 0.9; padding: 0.08em 0.12em 0 0; margin-bottom: -0.04em;
+  font-weight: 700; color: #5c4f3f;
+}
+
+/* Figures: old photos pasted into the log (white border, slight tilt, paper corners). Tapping one pops up a slowly appearing thought cloud that holds the author's note on the image. */
+.nf-fig { position: relative; width: 90%; margin: 22px auto 26px; transform: rotate(-1.4deg); }
+.nf-fig:nth-of-type(even) { transform: rotate(1.1deg); }
+.nf-fig .nf-photo { position: relative; display: block; padding: 7px 7px 9px; background: #fbf8f0; box-shadow: 0 4px 14px rgba(40, 25, 5, 0.28), 0 1px 2px rgba(40, 25, 5, 0.2); }
+.nf-fig img { display: block; width: 100%; height: auto; max-width: none; background: rgba(60, 45, 20, 0.08); border: 0; border-radius: 0; object-fit: fill; box-shadow: none; padding: 0; margin: 0; } /* explicit resets so a host page's global img rules cannot leak in; the sepia tone is baked into the image server-side, so no filter here */
+.nf-fig .nf-corner { position: absolute; width: 22px; height: 22px; background: var(--paper-edge); opacity: 0.95; } /* no drop-shadow: the entrance animation repaints every frame, so the page carries no filters */
+.nf-fig .nf-corner.tl { left: -3px; top: -3px; clip-path: polygon(0 0, 100% 0, 0 100%); }
+.nf-fig .nf-corner.tr { right: -3px; top: -3px; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+.nf-fig .nf-corner.bl { left: -3px; bottom: -3px; clip-path: polygon(0 0, 0 100%, 100% 100%); }
+.nf-fig .nf-corner.br { right: -3px; bottom: -3px; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+.nf-fig figcaption { margin-top: 9px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); text-align: center; letter-spacing: 0.3px; }
+.nf-fig .nf-credit a { color: inherit; text-decoration: none; border-bottom: 1px dotted currentColor; }
+.nf-fig .nf-credit { display: block; margin-top: 2px; font-size: 11px; color: var(--ink-3); letter-spacing: 0.4px; font-family: var(--nf-latin); }
+.nf-fig.has-note .nf-photo { cursor: pointer; }
+/* zoom button, bottom-right of the photo: opens the full-screen viewer (.nfr-view in the reader). No filter or backdrop blur on it. */
+.nf-fig .nf-zoom { position: absolute; right: 13px; bottom: 15px; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: rgba(24, 18, 10, 0.46); display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.nf-fig .nf-zoom svg { width: 15px; height: 15px; color: #fbf8f0; }
+.nf-fig .nf-zoom:active { background: rgba(24, 18, 10, 0.7); }
+.nf-fig .nf-dot { position: absolute; right: 14px; top: 14px; width: 9px; height: 9px; border-radius: 50%; background: var(--lamp); box-shadow: 0 0 10px 2px rgba(201, 154, 74, 0.55); opacity: 0.9; }
+/* Thought cloud = a stitched-paper cloud image plus two small dot images (medium and small). The text safe area of the cloud is expressed as padding (percentages of the width).
+   The small dot sits just above the photo's top-right corner, the medium dot up-left of it, the cloud above them. No filters.
+   Appear: small dot 0s -> medium dot .32s -> cloud .64s (each pops); disappear: cloud 0 -> medium dot .22s -> small dot .44s (fill both).
+   display:none while hidden (the reader removes .off once its 750ms have run). */
+.nf-cloud { display: none; position: absolute; right: -20px; bottom: calc(100% + 58px); width: min(330px, calc(100vw - 48px)); pointer-events: none; z-index: 5; } /* wider than the photo and shifted right so the left edge stays on the paper; wide enough that the text fits without stretching the image vertically */
+.nf-cloud.on, .nf-cloud.off { display: block; }
+.nf-cloud.on { pointer-events: auto; }
+.nf-cloud .nf-body, .nf-cloud .nf-b1, .nf-cloud .nf-b2 { opacity: 0; transform: scale(0.3); }
+.nf-cloud .nf-body { position: relative; aspect-ratio: 1536 / 1014; box-sizing: border-box; padding: 15% 12.4% 6% 19.3%; transform-origin: 80% 100%; background: url("assets/cloud.webp") center / 100% 100% no-repeat; } /* cloud frame 1536x1014; the padding approximates the image's text safe area (top 19.7% / right 12.4% / bottom 14.8% / left 19.3% of the frame), then tuned by eye */
+.nf-cloud .nf-puff { position: relative; color: #3b3022; font-size: 13px; line-height: 1.58; font-family: var(--nf-serif); }
+.nf-cloud .nf-puff.nf-long { font-size: 12px; line-height: 1.5; } /* long notes: smaller type so the cloud has to stretch less (see fitCloud in the reader) */
+.nf-cloud .nf-who { display: block; margin-top: 4px; text-align: right; font-size: 11px; color: #8a7a62; letter-spacing: 1px; }
+.nf-cloud .nf-b1, .nf-cloud .nf-b2 { position: absolute; background: center / 100% 100% no-repeat; transform-origin: 50% 50%; }
+.nf-cloud .nf-b1 { width: 26px; height: 26px; right: 58px; bottom: -30px; background-image: url("assets/cloud-dot-m.webp"); } /* medium dot: up-left of the small one, right next to the cloud's lower-right bulge */
+.nf-cloud .nf-b2 { width: 16px; height: 16px; right: 30px; bottom: -58px; background-image: url("assets/cloud-dot-s.webp"); } /* small dot: just above the photo's top-right corner */
+.nf-cloud.on .nf-b2 { animation: nfCloudIn 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.3) 0s both; }
+.nf-cloud.on .nf-b1 { animation: nfCloudIn 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.3) 0.32s both; }
+.nf-cloud.on .nf-body { animation: nfCloudIn 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.64s both; }
+.nf-cloud.off .nf-body { animation: nfCloudOut 0.26s ease-in 0s both; }
+.nf-cloud.off .nf-b1 { animation: nfCloudOut 0.22s ease-in 0.22s both; }
+.nf-cloud.off .nf-b2 { animation: nfCloudOut 0.2s ease-in 0.44s both; }
+@keyframes nfCloudIn { from { opacity: 0; transform: scale(0.3); } to { opacity: 1; transform: scale(1); } }
+@keyframes nfCloudOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.3); } }
+.nf-anchor { position: relative; width: 200px; height: 260px; margin: 0 auto;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 64px); mask-image: linear-gradient(180deg, transparent 0, #000 64px); } /* the rope's upper end fades into the paper (canvas and svg together); 64px so that the first texture seam (about 44 units above the knot) falls inside the fade */
+.nf-anchor .nf-rope-cv { position: absolute; left: 0; top: 0; width: 200px; height: 260px; z-index: 0; }
+.nf-anchor svg { position: relative; z-index: 1; display: block; width: 200px; height: 260px; overflow: hidden; }
+.nf-anchor .nf-ank { transform: translateY(-270px); transform-box: view-box; transform-origin: 100px 208px; }
+.nf-anchor .nf-puffs { transform-box: view-box; transform-origin: 100px 204px; }
+/* drop (heavy, accelerating) -> dig into the sand (short stop) -> tilt about 8 degrees to one side and settle */
+.nf-end.on .nf-ank { animation: nfAnk 2.4s forwards; }
+@keyframes nfAnk {
+  0% { transform: translateY(-270px) rotate(0); animation-timing-function: cubic-bezier(0.5, 0, 0.85, 0.45); }
+  50% { transform: translateY(0) rotate(0); animation-timing-function: ease-out; }
+  58% { transform: translateY(4px) rotate(0); animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1); }
+  84% { transform: translateY(4px) rotate(-9deg); animation-timing-function: ease-in-out; }
+  100% { transform: translateY(4px) rotate(-7.5deg); }
+}
+.nf-end.on .nf-shadow { animation: nfShadow 2.4s forwards; }
+@keyframes nfShadow { 0%, 46% { opacity: 0; } 60%, 100% { opacity: 0.22; } }
+.nf-end.on .nf-puffs { animation: nfPuff 2.4s forwards; }
+@keyframes nfPuff { 0%, 49% { opacity: 0; transform: scale(0.6); } 56% { opacity: 0.8; transform: scale(1); } 80%, 100% { opacity: 0; transform: scale(1.7) translateY(-6px); } }
+.nf-end { margin-top: 60px; text-align: center; }
+.nf-moor { margin-top: 0; font-size: 13px; letter-spacing: 4px; color: var(--ink-2); opacity: 0; }
+.nf-end.on .nf-moor { animation: nfFade 1s ease 1.9s forwards; }
+@keyframes nfFade { to { opacity: 1; } }
+.nf-note { margin: 22px auto 0; max-width: 30em; font-size: 14.5px; line-height: 1.8; color: var(--ink-2); font-style: normal; }
+.nf-note::before { content: "「"; color: var(--ink-3); } .nf-note::after { content: "」"; color: var(--ink-3); }
+.nf-nav { display: flex; flex-direction: column; gap: 18px; margin-top: 28px; padding-top: 16px; border-top: 1px solid rgba(90, 70, 40, 0.22); }
+.nf-nav button { width: 100%; min-width: 0; border: 0; background: none; color: var(--ink-2); font-family: inherit; font-size: 13px; line-height: 1.6; letter-spacing: 0.3px; text-align: left; cursor: pointer; padding: 4px 0; }
+.nf-nav button span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nf-nav button.prev { text-align: right; } /* right-aligned = previous entry */
+.nf-nav button b { display: block; font-weight: 500; color: var(--ink-3); font-size: 12px; letter-spacing: 1.5px; }
+.nf-nav button:active { opacity: 0.6; }
+.nf-nav button[disabled] { visibility: hidden; }
+.nf-page.empty h1 { font-size: 22px; margin-top: 10px; }
+
+/* water canvas for the entrance animation: above the painting, below the article */
+.nf-voyage { position: fixed; left: 0; top: 0; width: 100%; height: var(--screen-h, 100lvh); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .nf-cloud.on .nf-body, .nf-cloud.on .nf-b1, .nf-cloud.on .nf-b2 { animation: none !important; opacity: 1; transform: none; }
+  .nf-cloud.off .nf-body, .nf-cloud.off .nf-b1, .nf-cloud.off .nf-b2 { animation: none !important; }
+  .nf-anchor .nf-ank { transform: translateY(4px) rotate(-7.5deg); animation: none !important; } .nf-anchor .nf-shadow { opacity: 0.22; animation: none !important; } .nf-end .nf-moor { opacity: 1; animation: none; }
+}
+@media (min-width: 700px) { .nf-page { padding: 40px 48px 44px; } .nf-body { font-size: 17.5px; } }
+
+/* Ship's log: comments at the end of each article, placed after the closing note and before the prev / next nav.
+   The reader shell has a broad rule (.nfr button, .nfr input { color: inherit; font-size: 15px; margin: 0; padding: 0 }), so colours and sizes are set on the specific elements here. */
+.nf-shiplog { margin: 34px 0 0; padding: 18px 0 0; border-top: 1px solid rgba(90, 70, 40, 0.22); text-align: left; }
+.nf-shiplog h2 { margin: 0 0 6px; padding: 0; font-family: var(--nf-serif); font-size: 12.5px; font-weight: 500; letter-spacing: 3px; color: var(--ink-3); display: flex; align-items: baseline; gap: 10px; background: none; border: 0; }
+.nf-shiplog h2 span { font-family: var(--nf-latin); font-size: 18px; letter-spacing: 1.2px; color: var(--ink-2); }
+.nf-sl-list { list-style: none; margin: 0; padding: 0; }
+.nf-sl-list li { list-style: none; margin: 0; }
+.nf-sl-row { padding: 11px 0 10px; border-bottom: 1px dashed rgba(90, 70, 40, 0.26); }
+.nf-sl-meta { display: flex; align-items: baseline; gap: 10px; font-size: 12px; letter-spacing: 0.6px; color: var(--ink-3); }
+.nf-sl-who { font-family: var(--nf-serif); font-size: 12.5px; color: var(--ink-2); letter-spacing: 1px; }
+.nf-sl-row.who-writer .nf-sl-who { color: var(--lamp); }
+.nf-sl-time { font-family: var(--nf-latin); font-size: 13px; letter-spacing: 0.8px; font-variant-numeric: tabular-nums; }
+.nf-shiplog .nf-sl-rm { margin: 0 0 0 auto; padding: 0 2px 0 12px; border: 0; background: none; font-size: 16px; line-height: 1; color: var(--ink-3); opacity: 0.55; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.nf-shiplog .nf-sl-row.arm .nf-sl-rm { color: #b0553f; opacity: 1; }
+.nf-sl-row.arm .nf-sl-rm::before { content: "再点一下删掉 "; font-size: 11.5px; letter-spacing: 0.5px; }
+.nf-sl-text { margin: 4px 0 0; padding: 0; font-family: var(--nf-serif); font-size: 15px; line-height: 1.75; color: var(--ink); text-align: left; overflow-wrap: anywhere; }
+.nf-sl-empty { padding: 12px 0 11px; border-bottom: 1px dashed rgba(90, 70, 40, 0.26); font-size: 13px; letter-spacing: 1px; color: var(--ink-3); }
+.nf-sl-form { display: flex; align-items: flex-end; gap: 10px; margin: 0; padding: 12px 0 2px; }
+.nf-shiplog .nf-sl-in { flex: 1 1 auto; min-width: 0; width: auto; height: auto; min-height: 30px; max-height: 140px; margin: 0; padding: 4px 0 5px; border: 0; border-bottom: 1px solid rgba(90, 70, 40, 0.34); border-radius: 0; background: none; box-shadow: none; outline: none; resize: none; -webkit-appearance: none; appearance: none; font-family: var(--nf-serif); font-size: 16px; line-height: 1.6; color: var(--ink); display: block; }
+.nf-shiplog .nf-sl-in::placeholder { color: var(--ink-3); opacity: 0.8; }
+.nf-shiplog .nf-sl-in:focus { border-bottom-color: var(--lamp); }
+.nf-shiplog .nf-sl-form button { flex: 0 0 auto; width: 38px; height: 30px; margin: 0; padding: 0; border: 1px solid rgba(201, 154, 74, 0.6); border-radius: 3px; background: rgba(255, 255, 255, 0.28); font-family: var(--nf-serif); font-size: 13px; letter-spacing: 1px; color: var(--ink-2); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.nf-shiplog .nf-sl-form button:active { opacity: 0.6; }
+.nf-sl-form.busy { opacity: 0.55; pointer-events: none; }
+.nf-shiplog + .nf-nav { margin-top: 22px; }

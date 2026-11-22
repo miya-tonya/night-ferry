@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh" data-font="wenkai" style="background:#091530">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,interactive-widget=resizes-content,viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="夜航船" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0a1226" />
+  <title>夜航船 · Night Ferry</title>
+  <!-- The reader. The whole page is the reader shell (nf-reader.js) mounted on <body>.
+       ?enter=1 plays the entrance first: a boat crosses the painting and the article opens in its wake.
+       Installed to an iOS home screen, the document is only "screen height minus the top safe area" tall,
+       so --screen-h carries the physical screen height for everything that must fill the screen. -->
+  <script>
+    (function () {
+      try {
+        if (navigator.standalone && screen.height > screen.width) document.documentElement.style.setProperty("--screen-h", Math.max(screen.width, screen.height) + "px");
+      } catch (_) {}
+      if (/[?&]enter=1/.test(location.search)) document.documentElement.setAttribute("data-enter", "1");
+    })();
+  </script>
+  <link rel="stylesheet" href="nf-fonts.css" />
+  <link rel="stylesheet" href="nf-article.css" />
+  <link rel="stylesheet" href="nf-reader.css" />
+  <link rel="stylesheet" href="nf-page.css" />
+</head>
+<body>
+  <!-- canvas for the entrance animation (only used with ?enter=1) -->
+  <canvas id="voyage" class="nf-voyage" aria-hidden="true" hidden></canvas>
+  <script src="demo/demo-data.js"></script>
+  <script src="nf-demo.js"></script>
+  <script src="nf-article.js"></script>
+  <script src="nf-reader.js"></script>
+  <script src="nf-voyage.js"></script>
+  <script src="nf-chart.js"></script>
+  <script src="nf-page.js"></script>
+</body>
+</html>

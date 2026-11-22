@@ -1,0 +1,24 @@
+{
+  "name": "night-ferry",
+  "version": "0.1.0",
+  "description": "One short bedtime article a night, written by your AI for you: the writing tool, the Wikimedia Commons picture pipeline, and a reader page that looks like a ship's log.",
+  "main": "server/night-ferry.js",
+  "license": "MIT",
+  "author": "Miya",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server/index.js",
+    "seed": "node tools/seed.js",
+    "write": "node examples/write-tonight.js",
+    "demo-data": "node tools/build-demo-data.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "optionalDependencies": {
+    "@anthropic-ai/sdk": "*",
+    "sharp": "^0.33.0"
+  },
+  "keywords": ["ai-companion", "bedtime", "reader", "claude", "tool-use", "wikimedia-commons", "mcp"]
+}

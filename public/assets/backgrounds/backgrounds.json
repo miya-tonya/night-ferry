@@ -1,0 +1,33 @@
+[
+  {
+    "name": "月夜海",
+    "file": "moonsea.webp",
+    "thumb": "moonsea-t2.webp",
+    "default": true
+  },
+  {
+    "name": "海浪",
+    "file": "wave.webp",
+    "thumb": "wave-t2.webp"
+  },
+  {
+    "name": "星空",
+    "file": "starry.webp",
+    "thumb": "starry-t2.webp"
+  },
+  {
+    "name": "日式",
+    "file": "rain.webp",
+    "thumb": "rain-t2.webp"
+  },
+  {
+    "name": "自然",
+    "file": "forest.webp",
+    "thumb": "forest-t2.webp"
+  },
+  {
+    "name": "历史",
+    "file": "map.webp",
+    "thumb": "map-t2.webp"
+  }
+]

@@ -1,0 +1,18 @@
+/* Night Ferry: fonts. All four are open fonts served from public CDNs, sliced by unicode-range,
+   so a page only downloads the glyph blocks it actually shows.
+   - LXGW WenKai (SIL OFL): UI text (buttons, overview, wishes)
+   - Noto Serif SC (SIL OFL): article text — imported by nf-article.css
+   - Cormorant Garamond (SIL OFL): the Latin in the log header and credits
+   - Great Vibes (SIL OFL): the month title of the overview — imported by nf-reader.css
+   To self-host, replace these imports with your own @font-face rules. */
+@import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css");
+@import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap");
+
+html[data-font="wenkai"] body,
+html[data-font="wenkai"] button,
+html[data-font="wenkai"] input,
+html[data-font="wenkai"] select,
+html[data-font="wenkai"] textarea {
+  font-family: "LXGW WenKai", "Kaiti SC", "Hiragino Sans", -apple-system, sans-serif;
+}

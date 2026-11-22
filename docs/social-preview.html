@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>Night Ferry — social preview (1280×640)</title>
+<!-- Source of docs/social-preview.png (the repository's social preview / README banner).
+     Open at exactly 1280×640 and screenshot. Everything in it is from this repository:
+     the painting (public domain), the gold-line boat, and a screenshot of the reader page. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..600;1,400..600&display=swap" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5.3.1/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-serif-sc@5.3.1/600.css" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1280px; height: 640px; overflow: hidden; background: #0a1226; }
+  .card { position: relative; width: 1280px; height: 640px; overflow: hidden; color: #f1e8d4;
+    font-family: "Noto Serif SC", "Songti SC", serif; }
+  /* the painting, moon towards the upper middle */
+  .sea { position: absolute; inset: 0; background: #0a1226 url(../public/assets/moonsea.jpg) 150px -318px / 1130px auto no-repeat; }
+  .veil { position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, #0a1226 0%, #0a1226 11.5%, rgba(10, 18, 38, 0.90) 26%, rgba(10, 18, 38, 0.62) 44%, rgba(10, 18, 38, 0.16) 58%, rgba(10, 18, 38, 0.06) 100%),
+      linear-gradient(0deg, rgba(7, 12, 28, 0.30) 0%, rgba(7, 12, 28, 0) 30%); }
+  /* a chart's graticule, very faint, the way the entrance draws it */
+  .chart { position: absolute; inset: 0; opacity: 0.11; }
+  .frame { position: absolute; inset: 22px; border: 1px solid rgba(215, 195, 150, 0.34); }
+  .frame::after { content: ""; position: absolute; inset: 6px; border: 1px solid rgba(215, 195, 150, 0.16); }
+
+  .text { position: absolute; left: 92px; top: 112px; width: 640px; }
+  .kicker { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; letter-spacing: 6px; text-transform: uppercase; color: #cdb98c; }
+  .name { margin-top: 14px; font-family: "Cormorant Garamond", Georgia, serif; font-weight: 500; font-size: 124px; line-height: 1; letter-spacing: 1px; color: #f6eedb; }
+  .zh { margin-top: 10px; font-size: 34px; font-weight: 600; letter-spacing: 18px; color: #e9dcbd; }
+  .rule { margin: 30px 0 26px; width: 96px; height: 1px; background: #cdb98c; opacity: 0.8; }
+  .line { font-size: 25px; line-height: 1.7; letter-spacing: 1.5px; color: #efe6d0; }
+  .en { margin-top: 12px; font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-size: 23px; line-height: 1.45; color: #c9c1ae; }
+  .tags { position: absolute; left: 92px; bottom: 70px; display: flex; gap: 12px; }
+  .tags span { padding: 6px 16px 7px; border: 1px solid rgba(215, 195, 150, 0.5); border-radius: 999px; font-size: 16px; letter-spacing: 2px; color: #e3d6b6; background: rgba(7, 12, 28, 0.35); }
+
+  /* the reader page, as a sheet of the log lying on the picture */
+  .page { position: absolute; right: 108px; top: 56px; width: 322px; height: 600px; transform: rotate(3.2deg); transform-origin: 50% 40%;
+    border-radius: 26px; overflow: hidden; background: #e9dfc8;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.10), 0 0 0 7px rgba(12, 16, 30, 0.85), 0 0 0 8px rgba(215, 195, 150, 0.35); }
+  .page img { display: block; width: 100%; height: auto; }
+  /* the boat and its wake, heading for the page */
+  .wake { position: absolute; left: 0; top: 0; }
+  .boat { position: absolute; left: 716px; top: 470px; width: 70px; transform: rotate(-84deg); filter: drop-shadow(0 0 10px rgba(240, 215, 150, 0.55)); }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="sea"></div>
+  <div class="veil"></div>
+  <svg class="chart" viewBox="0 0 1280 640" aria-hidden="true">
+    <g stroke="#d7c396" stroke-width="1" fill="none">
+      <path d="M0 160H1280M0 320H1280M0 480H1280M213 0V640M427 0V640M640 0V640M853 0V640M1067 0V640" />
+      <g transform="translate(705 78)">
+        <path d="M-900 0L900 0M0 -700L0 300M-900 -520L900 520M-900 520L900 -520M-900 -215L900 215M-900 215L900 -215M-380 -700L380 700M380 -700L-380 700" />
+        <circle r="46" /><circle r="38" />
+      </g>
+    </g>
+  </svg>
+  <div class="frame"></div>
+
+  <svg class="wake" width="1280" height="640" viewBox="0 0 1280 640" aria-hidden="true">
+    <defs>
+      <linearGradient id="w" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#f3dfa8" stop-opacity="0" /><stop offset="1" stop-color="#f3dfa8" stop-opacity="0.75" /></linearGradient>
+    </defs>
+    <path d="M556 624 C 620 596, 684 566, 742 532" stroke="url(#w)" stroke-width="2" fill="none" stroke-linecap="round" />
+    <path d="M612 640 C 664 612, 710 580, 752 544" stroke="url(#w)" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.7" />
+    <path d="M520 596 C 598 574, 668 552, 734 522" stroke="url(#w)" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.7" />
+  </svg>
+  <img class="boat" src="../public/assets/boat.png" alt="" />
+
+  <div class="text">
+    <div class="kicker">A ship's log for bedtime</div>
+    <div class="name">Night Ferry</div>
+    <div class="zh">夜航船</div>
+    <div class="rule"></div>
+    <div class="line">每天晚上，让你的 AI 给你写一篇睡前读的小文</div>
+    <div class="en">One short article a night, written by your AI —<br />with pictures it found and looked at itself.</div>
+  </div>
+  <div class="tags"><span>写作工具</span><span>自动配图</span><span>航海日志</span><span>MCP</span></div>
+
+  <div class="page"><img src="social-preview-reader.jpg" alt="" /></div>
+</div>
+</body>
+</html>

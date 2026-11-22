@@ -1,0 +1,4 @@
+/* Night Ferry: standalone page styles. The page = reader shell (nf-reader.css) + article (nf-article.css); only the page background and the entrance canvas live here. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: var(--screen-h, 100lvh); background: #091530; color: #2b2416; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+#voyage { z-index: 1; }
